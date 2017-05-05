@@ -15,7 +15,7 @@ namespace TwitterForUnity
         private UnityWebRequest request;
         public Oauth Oauth { get; private set; }
 
-        public Stream(StreamType type, Oauth oauth)
+        public Stream(Oauth oauth,StreamType type)
         {
             Oauth = oauth;
             string[] endpoints = { "statuses/filter", "statuses/sample", "user", "site" };
@@ -35,7 +35,7 @@ namespace TwitterForUnity
 
         }
 
-        public IEnumerator StartStream(Dictionary<string, string> APIParams, TwitterStreamCallback callback)
+        public IEnumerator On(Dictionary<string, string> APIParams, TwitterStreamCallback callback)
         {
             SortedDictionary<string, string> parameters = Helper.ConvertToSortedDictionary(APIParams);
 
@@ -53,7 +53,7 @@ namespace TwitterForUnity
 
         }
 
-        public void StopStream()
+        public void Off()
         {
             Debug.Log("Connection Aborted");
             request.Abort();

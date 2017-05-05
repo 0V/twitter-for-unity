@@ -1,7 +1,14 @@
 
-Twitter API Client for Unity C#. (beta)
+Twitter API Client for Unity C#. (beta)  
 
-Inspired by [Let's Tweet In Unity](https://www.assetstore.unity3d.com/jp/#!/content/536).
+Inspired by [Let's Tweet In Unity](https://www.assetstore.unity3d.com/jp/#!/content/536).  
+
+本ライブラリは twitter-for-unity の形をできるだけ変えないようにしながら、 twitter-for-unity をクラスライブラリ化したものです。  
+
+オブジェクト指向の方針に従って書かれています。  
+
+以下のサンプルコードは本ライブラリでのサンプルコードです。
+
 
 # Environment
 
@@ -23,16 +30,20 @@ Inspired by [Let's Tweet In Unity](https://www.assetstore.unity3d.com/jp/#!/cont
 # Usage
 
 ## Initialize
-
 ```C#
-using Twitter;
+using TwitterForUnity;
 
 public class EventHandler : MonoBehaviour {
-  void Start () {
-    Twitter.Oauth.consumerKey       = "...";
-    Twitter.Oauth.consumerSecret    = "...";
-    Twitter.Oauth.accessToken       = "...";
-    Twitter.Oauth.accessTokenSecret = "...";
+
+private Client client;
+
+void Start () {
+    Oauth oauth = new Oauth(); 
+    oauth.ConsumerKey       = "...";
+    oauth.ConsumerSecret    = "...";
+    oauth.AccessToken       = "...";
+    oauth.AccessTokenSecret = "...";
+    client = new Client(oauth);
   }  
 }
 ```
@@ -41,13 +52,13 @@ public class EventHandler : MonoBehaviour {
 ### GET search/tweets
 
 ```C#
-using Twitter;
+using TwitterForUnity;
 
 void Start() {
   Dictionary<string, string> parameters = new Dictionary<string, string>();
   parameters ["q"] = "search word";
-  parameters ["count"] = 30.ToString();;
-  StartCoroutine (Client.Get ("search/tweets", parameters, this.Callback));
+  parameters ["count"] = 30.ToString();
+  StartCoroutine (client.Get ("search/tweets", parameters, this.Callback));
 }
 
 void Callback(bool success, string response) {
@@ -62,12 +73,12 @@ void Callback(bool success, string response) {
 ### GET statuses/home_timeline
 
 ```C#
-using Twitter;
+using TwitterForUnity;
 
 void Start() {
   Dictionary<string, string> parameters = new Dictionary<string, string>();
-  parameters ["count"] = 30.ToString();;
-  StartCoroutine (Client.Get ("statuses/home_timeline", parameters, this.Callback));
+  parameters ["count"] = 30.ToString();
+  StartCoroutine (client.Get ("statuses/home_timeline", parameters, this.Callback));
 }
 
 void Callback(bool success, string response) {
@@ -82,12 +93,12 @@ void Callback(bool success, string response) {
 ### POST statuses/update
 
 ```C#
-using Twitter;
+using TwitterForUnity;
 
 void Start() {
   Dictionary<string, string> parameters = new Dictionary<string, string>();
   parameters ["status"] = "Tweet from Unity";
-  StartCoroutine (Client.Post ("statuses/update", parameters, this.Callback));
+  StartCoroutine (client.Post ("statuses/update", parameters, this.Callback));
 }
 
 void Callback(bool success, string response) {
@@ -102,13 +113,13 @@ void Callback(bool success, string response) {
 ### POST statuses/retweet/:id
 ex. search tweets with the word "Unity", and retweet 5 tweets.
 ```C#
-using Twitter;
+using TwitterForUnity;
 
 void start() {
   Dictionary<string, string> parameters = new Dictionary<string, string>();
   parameters ["q"] = "Unity";       // Search keywords
   parameters ["count"] = 5.ToString();   // Number of Tweets
-  StartCoroutine (Client.Get ("search/tweets", parameters, this.Callback));
+  StartCoroutine (client.Get ("search/tweets", parameters, this.Callback));
 }
 
 void Callback(bool success, string response) {
@@ -123,7 +134,7 @@ void Callback(bool success, string response) {
 void Retweet(Tweet tweet) {
   Dictionary<string, string> parameters = new Dictionary<string, string>();
   parameters ["id"] = tweet.id_str;
-  StartCoroutine (twitter.Client.Post ("statuses/retweet/" + tweet.id_str, parameters, this.RetweetCallback));
+  StartCoroutine (client.Post ("statuses/retweet/" + tweet.id_str, parameters, this.RetweetCallback));
 }
 
 void RetweetCallback(bool success, string response) {
@@ -141,12 +152,17 @@ See https://dev.twitter.com/rest/reference for more Methods.
 
 ### POST statuses/filter
 ```C#
-using Twitter;
+using TwitterForUnity;
 
 Stream stream;
 
 void Start() {
-  stream = new Stream(Type.Filter);
+  Oauth oauth = new Oauth(); 
+  oauth.ConsumerKey       = "...";
+  oauth.ConsumerSecret    = "...";
+  oauth.AccessToken       = "...";
+  oauth.AccessTokenSecret = "...";
+  stream = new Stream(oauth,StreamType.Filter);
   Dictionary<string, string> streamParameters = new Dictionary<string, string>();
   streamParameters.Add("track", "iPhone");
   StartCoroutine(stream.On(streamParameters, this.OnStream));
